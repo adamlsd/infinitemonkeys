@@ -86,6 +86,12 @@ namespace InfiniteMonkeys
 			using const_unsigned= typename const_unsigned_impl< constness >::type;
 		}
 
+		/*!
+		 * @brief A `std::vector< bool >`-like class with access to its raw-internal byte structure.
+		 *
+		 * @note Not all expected `vector` operations are provided, at this time. However, those that
+		 * are, function mostly as expected, unless documented otherwise.
+		 */
 		class bitvector
 		{
 			private:
@@ -193,6 +199,18 @@ namespace InfiniteMonkeys
 			public:
 				explicit bitvector()= default;
 
+				/*!
+				 * @brief Construct a blank (all-`false`) `bitvector`.
+				 *
+				 * @param size The number of bits to size this `bitvector` to.
+				 */
+				explicit inline
+				bitvector( const std::size_t size )
+				{
+					Invariant checker( this );
+					this->resize( size );
+				}
+
 				inline std::size_t
 				size() const noexcept
 				{
@@ -266,6 +284,12 @@ namespace InfiniteMonkeys
 				}
 		};
 
+		/*!
+		 * @brief Compare two `bitvectors` for equality.
+		 *
+		 * Two `bitvectors` are equal if they have the same size, and each represent the
+		 * same ordered sequence of boolean values.
+		 */
 		inline bool
 		operator == ( const bitvector &lhs, const bitvector &rhs )
 		{
@@ -284,6 +308,15 @@ namespace InfiniteMonkeys
 			return !( lhs == rhs );
 		}
 
+		/*!
+		 * @brief Serialize a `bitvector` to a specified `ostream`, in raw-binary format.
+		 *
+		 * @param os The output stream onto which serialization will happen.
+		 * @param bv The bitvector to serialize in binary format.
+ 		 *
+		 * @note This operation uses iostream's read/write methods, not string-formatting,
+		 * as the intent of `bitvector` is for low-overhead streaming.
+		 */
 		inline std::ostream &
 		operator << ( std::ostream &os, const bitvector &bv )
 		{
@@ -294,6 +327,15 @@ namespace InfiniteMonkeys
 			return os;
 		}
 
+		/*!
+		 * @brief Serialize a `bitvector` to a specified `ostream`, in raw-binary format.
+		 *
+		 * @param os The output stream onto which serialization will happen.
+		 * @param bv The bitvector to serialize in binary format.
+ 		 *
+		 * @note This operation uses iostream's read/write methods, not string-formatting,
+		 * as the intent of `bitvector` is for low-overhead streaming.
+		 */
 		inline std::istream &
 		operator >> ( std::istream &is, bitvector &bv )
 		{
