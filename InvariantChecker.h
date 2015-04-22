@@ -61,7 +61,7 @@
 
 #include <cassert>
 
-namespace Chipotle
+namespace InfiniteMonkeys
 {
 	template< typename Class >
 	class InvariantChecker

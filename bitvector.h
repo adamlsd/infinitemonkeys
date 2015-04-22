@@ -101,7 +101,7 @@ namespace InfiniteMonkeys
 				friend std::ostream &operator << ( std::ostream &, const bitvector & );
 				friend std::istream &operator >> ( std::istream &,       bitvector & );
 
-				using Invariant= Chipotle::InvariantChecker< bitvector >;
+				using Invariant= InfiniteMonkeys::InvariantChecker< bitvector >;
 				friend Invariant;
 
 				inline bool
@@ -254,6 +254,7 @@ namespace InfiniteMonkeys
 				operator[]( const std::size_t idx )
 				{
 					Invariant checker( this );
+
 					assert( idx <= this->data.size() * sizeof( unsigned ) * CHAR_BIT );
 					assert( idx <= this->actualSize );
 
@@ -280,7 +281,7 @@ namespace InfiniteMonkeys
 					const bool check= this->operator[]( std::max( (signed) last_idx - 1, 0 ) );
 					this->operator[]( last_idx )= value;
 					assert( check == this->operator[]( std::max( (signed) last_idx - 1, 0 ) ) );
-					assert( (const_cast< const bitvector * >( this )->operator[]( last_idx ) == value ) );
+					assert( ( const_cast< const bitvector * >( this )->operator[]( last_idx ) == value ) );
 				}
 		};
 
