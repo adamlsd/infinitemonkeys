@@ -128,6 +128,99 @@ namespace InfiniteMonkeys
 					}
 				};
 
+				template< bool constness > class boolean_proxy;
+				template< bool constness > class boolean_iterator;
+
+				using const_iterator= boolean_iterator< true >;
+				using iterator= boolean_iterator< false >;
+
+				template< bool constness >
+				class boolean_iterator
+				{
+					private:
+						using backing_type= detail::const_unsigned< constness >;
+
+					public:
+						using value_type= bool;
+						using iterator_category= std::forward_iterator_tag;
+						using difference_type= std::ptrdiff_t;
+						using reference= boolean_proxy< constness >;
+						using pointer= reference *;
+
+					private:
+						backing_type *raw_backing= nullptr;
+						unsigned index= 0;
+
+						using bproxy= boolean_proxy< constness >;
+						friend bproxy;
+
+						using Invariant= InvariantChecker< boolean_iterator >;
+						friend Invariant;
+
+						inline bool
+						invariant() const
+						{
+							return ( index < sizeof( backing_type ) * CHAR_BIT );
+						}
+
+						inline void
+						advance()
+						{
+							if( ++index == sizeof( backing_type ) * CHAR_BIT )
+							{
+								index= 0;
+								++raw_backing;
+							}
+						}
+
+					public:
+						explicit inline boolean_iterator()= default;
+
+						explicit inline
+						boolean_iterator( backing_type &raw, const unsigned i_index )
+							: raw_backing( &raw ), index( i_index )
+						{
+							Invariant checker( this );
+						}
+
+						inline boolean_proxy< constness >
+						operator *() const
+						{
+							Invariant checker( this );
+							assert( this->raw_backing );
+							return boolean_proxy< constness >( *this->raw_backing, this->index );
+						}
+
+						inline boolean_iterator &
+						operator ++()
+						{
+							Invariant checker( this );
+							this->advance();
+							return *this;
+						}
+
+						inline boolean_iterator
+						operator++ ( int )
+						{
+							Invariant checker( this );
+							const boolean_iterator rv( *this );
+							this->advance();
+							return rv;
+						}
+
+						inline friend bool
+						operator == ( const boolean_iterator &lhs, const boolean_iterator &rhs )
+						{
+							return lhs.raw_backing == rhs.raw_backing && lhs.index == rhs.index;
+						}
+
+						inline friend bool
+						operator != ( const boolean_iterator &lhs, const boolean_iterator &rhs )
+						{
+							return !( lhs == rhs );
+						}
+				};
+
 				/*!
 				 * @brief Represents a boolean value in a fashion as if it were a reference
 				 */
@@ -138,6 +231,8 @@ namespace InfiniteMonkeys
 						using backing_type= detail::const_unsigned< constness >;
 						backing_type *const raw_backing;
 						const unsigned index;
+
+						void operator &() const= delete;
 
 					public:
 						explicit inline
@@ -283,6 +378,19 @@ namespace InfiniteMonkeys
 					assert( check == this->operator[]( std::max( (signed) last_idx - 1, 0 ) ) );
 					assert( ( const_cast< const bitvector * >( this )->operator[]( last_idx ) == value ) );
 				}
+
+				inline const_iterator
+				begin() const
+				{
+					return const_iterator( this->data[ 0 ], 0 );
+				}
+
+				inline const_iterator
+				end() const
+				{
+					const Index last( this->actualSize );
+					return const_iterator( this->data[ last.word_idx ], last.word_mod );
+				}
 		};
 
 		/*!
@@ -346,6 +454,15 @@ namespace InfiniteMonkeys
 			bv.resize( sz );
 
 			is.read( static_cast< char * >( bv.raw() ), bv.bytes() );
+		}
+
+		inline std::vector< bool >
+		convert_to_vector_bool( const bitvector &bv )
+		{
+			using std::begin; using std::end;
+			std::vector< bool > rv;
+			std::copy( begin( bv ), end( bv ), back_inserter( rv ) );
+			return rv;
 		}
 	}
 }

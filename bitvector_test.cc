@@ -76,6 +76,12 @@
  *  * I want to make sure that operations which change the size of a `bitvector` have the new
  *    size value properly reflected.
  *
+ *  * I want to make sure that a `bitvector`'s iterator works correctly for copy and other
+ *    operations.
+ *
+ *   * I want to make sure that a `bitvector`'s conversion function to `std::vector< bool >`
+ *     functions as expected.
+ *
  *
  * ## Basic Plan:
  *
@@ -84,6 +90,8 @@
  *  * Serialize the `bitvector` out to a file.
  *  * Reload the `bitvector` from the file.
  *  * Confirm the rehydrated `bitvector`
+ *  * Convert to a `std::vector< bool >` and verify that the sequence is the same.
+ *
  */
 
 int
@@ -147,6 +155,13 @@ main()
 
 
 		std::cout << "I see v2 as having " << v2.size() << " elements" << std::endl;
+	}
+
+	{
+		const std::vector< bool > vb= convert_to_vector_bool( v );
+		using std::begin; using std::end;
+		assert( v.size() == vb.size() );
+		assert( std::equal( begin( v ), end( v ), begin( vb ) ) );
 	}
 
 	return 0;
