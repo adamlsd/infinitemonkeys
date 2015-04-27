@@ -99,7 +99,7 @@ main()
 {
 	// We want a number which is not a multiple of `sizeof( unsigned )`, to help test the streaming
 	// functionality
-	const std::size_t N_PASSES= 231;
+	const std::size_t N_PASSES= 2317189177;
 
 	// We use a modulus to give us a simple `f( i )` for our test passes.  A simple `i % k` where
 	// `k` is both relatively prime to the number of bits in a word, and is smaller than that

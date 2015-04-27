@@ -56,6 +56,18 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
+/*!
+ * @file
+ * @brief The `InfiniteMonkeys::Bits::bitvector` module is a vector-like construct operating over
+ * raw bits, not bytes or `bool`s.
+ */
+
+/*!
+ * @example bitvector_example.cc
+ * Example Usage
+ * =============
+ */
 #ifndef INFINITE_MONKEYS_BITS_BITVECTOR_HEADER
 #define INFINITE_MONKEYS_BITS_BITVECTOR_HEADER
 
@@ -76,6 +88,7 @@ namespace InfiniteMonkeys
 		std::ostream &operator << ( std::ostream &, const bitvector & );
 		std::istream &operator >> ( std::istream &,       bitvector & );
 
+		/// @cond internal
 		namespace detail
 		{
 			template< bool constness > struct const_unsigned_impl;
@@ -85,6 +98,7 @@ namespace InfiniteMonkeys
 			template< bool constness >
 			using const_unsigned= typename const_unsigned_impl< constness >::type;
 		}
+		/// @endcond internal
 
 		/*!
 		 * @brief A `std::vector< bool >`-like class with access to its raw-internal byte structure.
@@ -94,6 +108,10 @@ namespace InfiniteMonkeys
 		 */
 		class bitvector
 		{
+			public:
+				using size_type= std::size_t;
+				using value_type= bool;
+
 			private:
 				std::size_t actualSize= 0;
 				std::vector< unsigned > data;
@@ -437,10 +455,11 @@ namespace InfiniteMonkeys
 		}
 
 		/*!
-		 * @brief Serialize a `bitvector` to a specified `ostream`, in raw-binary format.
+		 * @brief Deserialize an `InfiniteMonkeys::Bits::bitvector` from a specified `std::istream`,
+		 * in raw-binary format.
 		 *
-		 * @param os The output stream onto which serialization will happen.
-		 * @param bv The bitvector to serialize in binary format.
+		 * @param is The `std::istream` from which deserialization will happen.
+		 * @param bv The `InfiniteMonkeys::Bits::bitvector` to populate from the binary format.
  		 *
 		 * @note This operation uses iostream's read/write methods, not string-formatting,
 		 * as the intent of `bitvector` is for low-overhead streaming.
@@ -456,6 +475,11 @@ namespace InfiniteMonkeys
 			is.read( static_cast< char * >( bv.raw() ), bv.bytes() );
 		}
 
+		/*!
+		 * @brief Convert a `bitvector` to a `std::vector< bool >` representing the same sequence.
+		 * @param bv The `bitvector` to convert
+		 * @returns A `std::vector< bool >` representing the same bit sequence as the `bv` argument.
+		 */
 		inline std::vector< bool >
 		convert_to_vector_bool( const bitvector &bv )
 		{
